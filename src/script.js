@@ -78,12 +78,12 @@ loader.load('models/gltf/city.glb', function (gltf) {
 
     scene.add(gltf.scene)
 
-    // ziao: load cause stuck?
-
-    loadMercedesBenzModel();
+    //ziao: Load moving model after intro animation
+    // loadMercedesBenzModel();
+    // loadHelicopter();
+    
     loadDog();
     loadCharacter();
-    loadHelicopter();
 })
 
 let mercedesBenzModel; // 用于在渲染循环外部引用模型
@@ -169,8 +169,41 @@ function onMouseClick(event){
     // 获取raycaster直线和所有模型相交的数组集合
     var intersects = raycaster.intersectObjects( scene.children ).map(i=>i.object);
     for(let i of intersects) {
+        //Dog
         if(i.name == "Object_206") {
-            window.open("https://en.wikipedia.org/wiki/Dog");
+            // window.open("https://en.wikipedia.org/wiki/Dog");
+            dog.scale.x == 0.5 ?  dog.scale.set(0.05, 0.05, 0.05) : dog.scale.set(0.5, 0.5, 0.5);
+            console.log(dog);
+            break
+        }
+
+        // Car
+        if(i.name == "SL63_underbody_SL63_underbody_0" || i.name == "SL63_engine-63V8_chassis2_0") {
+            window.open("https://www.mbusa.com/en/vehicles/class/sl/roadster?sd_campaign_type=Search&sd_digadprov=Resolution&sd_campaign=Corporate_Google_Brand_TEV&sd_channel=GOOGLE&sd_adid=TEV_AMG_Roadster_SL&sd_digadkeyword=mercedes+sl&gad_source=1&gclid=CjwKCAiA3JCvBhA8EiwA4kujZhW-5bsvJLBYuYIw2ej7qgo2-v1m6m2MBDxWvmNsUTAoabxJwFrRGhoCzd4QAvD_BwE&gclsrc=aw.ds");
+            break;
+        }
+
+        // Helicopter
+        if(i.name == "Copter_Palette_0") {
+            window.open("https://www.boeing.com/defense/ah-64-apache");
+            break;
+        }
+
+        //Hamburger
+        if(i.name == "Hambuger_Color_0") {
+            window.open("https://www.grubhub.com/food/burger_king/nh-hanover");
+            break
+        }
+
+        //Cafe
+        if(i.userData.name == "Piattino_caffe_01_Color_0") {
+            window.open("https://lousrestaurant.com");
+            break
+        }
+
+        // Bus
+        if(i.name == "Fermata_bus_01_Color_0" || i.userData.name == "BUS_STOP_02_Color_0") {
+            window.open("https://dartmouthcoach.com/")
             break
         }
     }  
@@ -189,6 +222,9 @@ function introAnimation() {
     }, 6500) // time take to animate
     .delay(1000).easing(TWEEN.Easing.Quartic.InOut).start() // define delay, easing
     .onComplete(function () { //on finish animation
+        //Load model
+        loadMercedesBenzModel();
+        loadHelicopter();
         controls.enabled = true //enable orbit controls
         setOrbitControlsLimits() //enable controls limits
         TWEEN.remove(this) // remove the animation from memory
