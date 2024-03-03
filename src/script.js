@@ -19,7 +19,7 @@ loader.setDRACOLoader(dracoLoader)
 ///// DIV CONTAINER CREATION TO HOLD THREEJS EXPERIENCE
 const container = document.querySelector('#container')
 
-
+const clock = new THREE.Clock();
 /////////////////////////////////////////////////////////////////////////
 ///// SCENE CREATION
 const scene = new THREE.Scene()
@@ -83,10 +83,12 @@ loader.load('models/gltf/city.glb', function (gltf) {
     loadMercedesBenzModel();
     loadDog();
     loadCharacter();
+    loadHelicopter();
 })
 
 let mercedesBenzModel; // 用于在渲染循环外部引用模型
 let dog;
+let helicopterModel;
 
 function loadMercedesBenzModel() {
     loader.load('models/gltf/mersedes-benz_sl63_amg_free.glb', function (gltf) {
@@ -131,6 +133,23 @@ function loadCharacter() {
         gltf.scene.position.set(6, 8, -18);
         gltf.scene.scale.set(3, 3, 3);
         scene.add(gltf.scene);
+    });
+}
+
+let mixer; // 定义一个全局变量来存储动画混合器
+
+function loadHelicopter() {
+    loader.load('models/gltf/helicopter.glb', function (gltf) {
+        gltf.scene.position.set(-15, 30, 25.3); // 初始化位置
+        gltf.scene.scale.set(0.3, 0.3, 0.3); // 初始化缩放
+        scene.add(gltf.scene);
+
+        // 创建动画混合器并播放所有动画
+        mixer = new THREE.AnimationMixer(gltf.scene);
+        gltf.animations.forEach((clip) => {
+            mixer.clipAction(clip).play();
+        });
+        helicopterModel = gltf.scene;
     });
 }
 
@@ -240,16 +259,109 @@ function updateVehiclePosition() {
 }
 
 
+let helicopterSpeed = 0.03;
+let lastDirectionChangeTime = 0; // 上次方向变更的时间
+let directionChangeInterval = Math.random() * 500 + 3000;
+let direction = {x: -20, z: 30, y: 25}; // 初始方向，包括y轴
 
+function updateHelicopterPosition(deltaTime) {
+    lastDirectionChangeTime += deltaTime * 1000;
 
+    // 检查是否需要改变方向
+    if (lastDirectionChangeTime >= directionChangeInterval) {
+        const directionChangeMagnitude = 0.5;
+        direction = {
+            x: direction.x + (Math.random() * 2 - 1) * directionChangeMagnitude,
+            z: direction.z + (Math.random() * 2 - 1) * directionChangeMagnitude,
+            y: direction.y + (Math.random() * 2 - 1) * directionChangeMagnitude,
+        };
+        // 重新规范化方向向量以确保其长度为1
+        const length = Math.sqrt(direction.x * direction.x + direction.z * direction.z + direction.y * direction.y);
+        direction.x /= length;
+        direction.z /= length;
+        direction.y /= length;
+        lastDirectionChangeTime = 0;
+        directionChangeInterval = Math.random() * 500 + 3000;
+    }
+
+    // 规范化方向向量
+    const length = Math.sqrt(direction.x * direction.x + direction.z * direction.z + direction.y * direction.y);
+    const normalizedDirection = { 
+        x: direction.x / length, 
+        z: direction.z / length,
+        y: direction.y / length 
+    };
+
+    // 预测更新后的位置
+    let predictedPosition = {
+        x: helicopterModel.position.x + normalizedDirection.x * helicopterSpeed,
+        y: helicopterModel.position.y + normalizedDirection.y * helicopterSpeed,
+        z: helicopterModel.position.z + normalizedDirection.z * helicopterSpeed,
+    };
+
+    // 检查并处理边界碰撞
+    let boundaryHit = false;
+    if (predictedPosition.x <= -40 || predictedPosition.x >= 25) {
+        direction.x *= -1; // 反向
+        boundaryHit = true;
+    }
+    if (predictedPosition.y <= 30 || predictedPosition.y >= 50) {
+        direction.y *= -1; // 反向
+        boundaryHit = true;
+    }
+    if (predictedPosition.z <= -20 || predictedPosition.z >= 50) {
+        direction.z *= -1; // 反向
+        boundaryHit = true;
+    }
+
+    if (boundaryHit) {
+        // 如果到达边界，重新计算方向并预测位置
+        const correctedDirection = {
+            x: direction.x,
+            y: direction.y,
+            z: direction.z
+        };
+        predictedPosition = {
+            x: helicopterModel.position.x + correctedDirection.x * helicopterSpeed,
+            y: helicopterModel.position.y + correctedDirection.y * helicopterSpeed,
+            z: helicopterModel.position.z + correctedDirection.z * helicopterSpeed,
+        };
+    }
+
+    // 确保位置在边界内
+    predictedPosition.x = Math.max(-40, Math.min(25, predictedPosition.x));
+    predictedPosition.y = Math.max(30, Math.min(50, predictedPosition.y));
+    predictedPosition.z = Math.max(-20, Math.min(50, predictedPosition.z));
+
+    // 更新直升机位置
+    helicopterModel.position.x = predictedPosition.x;
+    helicopterModel.position.y = predictedPosition.y;
+    helicopterModel.position.z = predictedPosition.z;
+
+    // 调整直升机旋转以面向移动方向（忽略Y轴旋转）
+    let newTargetRotationY = Math.atan2(-normalizedDirection.x, -normalizedDirection.z) + 1.5 * Math.PI;
+    const alpha = 0.01;
+    let currentRotationY = helicopterModel.rotation.y;
+    let rotationDifference = newTargetRotationY - currentRotationY;
+
+    // 确保差异在 -π 到 π 范围内
+    while (rotationDifference > Math.PI) rotationDifference -= 2 * Math.PI;
+    while (rotationDifference < -Math.PI) rotationDifference += 2 * Math.PI;
+
+    // 应用平滑旋转
+    helicopterModel.rotation.y += rotationDifference * alpha;
+}
 
 function rendeLoop() {
-
+    const delta = clock.getDelta();
     TWEEN.update() // update animations
-
+    if (mixer) mixer.update(delta); 
     controls.update() // update orbit controls
     if (mercedesBenzModel) {
         updateVehiclePosition();
+    }
+    if (helicopterModel) {
+        updateHelicopterPosition(delta);
     }
 
     renderer.render(scene, camera) // render the scene using the camera
