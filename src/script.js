@@ -80,13 +80,8 @@ loader.load('models/gltf/city.glb', function (gltf) {
 
     // ziao: load cause stuck?
 
-<<<<<<< HEAD
-    // loadMercedesBenzModel();
-    loadDog();
-=======
     loadMercedesBenzModel();
-    // loadDog();
->>>>>>> 338be77d63ee26580383f8701f7a276567abfde3
+    loadDog();
 })
 
 let mercedesBenzModel; // 用于在渲染循环外部引用模型
@@ -102,7 +97,6 @@ function loadMercedesBenzModel() {
         mercedesBenzModel = gltf.scene; // 保存对模型的引用
     });
 }
-<<<<<<< HEAD
 
 function loadDog() {
     loader.load('models/gltf/animated_dog_shiba_inu.glb', function (gltf) {
@@ -140,8 +134,6 @@ function onMouseClick(event){
 }
 
 window.addEventListener( 'click', onMouseClick, false );
-=======
->>>>>>> 338be77d63ee26580383f8701f7a276567abfde3
 /////////////////////////////////////////////////////////////////////////
 //// INTRO CAMERA ANIMATION USING TWEEN
 function introAnimation() {
