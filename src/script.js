@@ -23,7 +23,15 @@ document.body.appendChild(container)
 /////////////////////////////////////////////////////////////////////////
 ///// SCENE CREATION
 const scene = new THREE.Scene()
-scene.background = new THREE.Color('#c8f0f9')
+// scene.background = new THREE.Color('#c8f0f9')
+
+var textureLoader = new THREE.CubeTextureLoader();
+var texture = textureLoader.load([
+    './textures/DaylightBox_Right.jpg', './textures/DaylightBox_Left.jpg',
+    './textures/DaylightBox_Top.jpg', './textures/DaylightBox_Bottom.jpg',
+    './textures/DaylightBox_Front.jpg', './textures/DaylightBox_Back.jpg'
+]);
+scene.background = texture
 
 /////////////////////////////////////////////////////////////////////////
 ///// RENDERER CONFIG
@@ -35,8 +43,8 @@ container.appendChild(renderer.domElement) // add the renderer to html div
 
 /////////////////////////////////////////////////////////////////////////
 ///// CAMERAS CONFIG
-const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 100)
-camera.position.set(34,16,-20)
+const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 500)
+camera.position.set(50,5,-35)
 scene.add(camera)
 
 /////////////////////////////////////////////////////////////////////////
@@ -69,8 +77,11 @@ scene.add(sunLight)
 loader.load('models/gltf/city.glb', function (gltf) {
 
     scene.add(gltf.scene)
-    loadMercedesBenzModel();
-    loadDog();
+
+    // ziao: load cause stuck?
+
+    // loadMercedesBenzModel();
+    // loadDog();
 })
 
 let mercedesBenzModel; // 用于在渲染循环外部引用模型
@@ -89,7 +100,7 @@ function loadDog() {
         gltf.scene.position.set(3, 0, 3); // 初始化位置
         gltf.scene.scale.set(0.1, 0.1, 0.1); // 初始化缩放
         scene.add(gltf.scene);
-        dog = gltf.scene; // 保存对模型的引用
+        let dog = gltf.scene; // 保存对模型的引用
     });
 }
 /////////////////////////////////////////////////////////////////////////
@@ -97,10 +108,10 @@ function loadDog() {
 function introAnimation() {
     controls.enabled = false //disable orbit controls to animate the camera
     
-    new TWEEN.Tween(camera.position.set(26,4,-35 )).to({ // from camera position
-        x: 16, //desired x position to go
+    new TWEEN.Tween(camera.position.set(50,10,-35 )).to({ // from camera position
+        x: 0, //desired x position to go
         y: 50, //desired y position to go
-        z: -0.1 //desired z position to go
+        z: 40 //desired z position to go
     }, 6500) // time take to animate
     .delay(1000).easing(TWEEN.Easing.Quartic.InOut).start() // define delay, easing
     .onComplete(function () { //on finish animation
@@ -117,8 +128,8 @@ introAnimation() // call intro animation on start
 function setOrbitControlsLimits(){
     controls.enableDamping = true
     controls.dampingFactor = 0.04
-    controls.minDistance = 35
-    controls.maxDistance = 60
+    controls.minDistance = 20
+    controls.maxDistance = 5000
     controls.enableRotate = true
     controls.enableZoom = true
     controls.maxPolarAngle = Math.PI /2.5
@@ -182,7 +193,9 @@ import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js'
 const gui = new GUI()
 
 // create parameters for GUI
-var params = {color: sunLight.color.getHex(), color2: ambient.color.getHex(), color3: scene.background.getHex()}
+var params = {color: sunLight.color.getHex(), color2: ambient.color.getHex(), color3: null
+    // scene.background.getHex()
+}
 
 // create a function to be called by GUI
 const update = function () {
