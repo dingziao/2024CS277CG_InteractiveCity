@@ -17,8 +17,8 @@ loader.setDRACOLoader(dracoLoader)
 
 /////////////////////////////////////////////////////////////////////////
 ///// DIV CONTAINER CREATION TO HOLD THREEJS EXPERIENCE
-const container = document.createElement('div')
-document.body.appendChild(container)
+const container = document.querySelector('#container')
+
 
 /////////////////////////////////////////////////////////////////////////
 ///// SCENE CREATION
@@ -81,10 +81,11 @@ loader.load('models/gltf/city.glb', function (gltf) {
     // ziao: load cause stuck?
 
     loadMercedesBenzModel();
-    // loadDog();
+    loadDog();
 })
 
 let mercedesBenzModel; // 用于在渲染循环外部引用模型
+let dog;
 
 function loadMercedesBenzModel() {
     loader.load('models/gltf/mersedes-benz_sl63_amg_free.glb', function (gltf) {
@@ -96,6 +97,43 @@ function loadMercedesBenzModel() {
         mercedesBenzModel = gltf.scene; // 保存对模型的引用
     });
 }
+
+function loadDog() {
+    loader.load('models/gltf/animated_dog_shiba_inu.glb', function (gltf) {
+        gltf.scene.position.set(3, 8, 3); // 初始化位置
+        gltf.scene.scale.set(0.05, 0.05, 0.05); // 初始化缩放
+        scene.add(gltf.scene);
+        dog = gltf.scene; // 保存对模型的引用
+    });
+}
+
+
+
+
+var raycaster = new THREE.Raycaster()
+var mouse = new THREE.Vector2()
+
+function onMouseClick(event){
+
+    //将鼠标点击位置的屏幕坐标转换成threejs中的标准坐标
+
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+    mouse.y = -(event.clientY/window.innerHeight) *2 + 1
+    
+    // 通过鼠标点的位置和当前相机的矩阵计算出raycaster
+    raycaster.setFromCamera( mouse, camera );
+
+    // 获取raycaster直线和所有模型相交的数组集合
+    var intersects = raycaster.intersectObjects( scene.children ).map(i=>i.object);
+    for(let i of intersects) {
+        if(i.name == "Object_206") {
+            window.open("https://en.wikipedia.org/wiki/Dog");
+            break
+        }
+    }  
+}
+
+window.addEventListener( 'click', onMouseClick, false );
 /////////////////////////////////////////////////////////////////////////
 //// INTRO CAMERA ANIMATION USING TWEEN
 function introAnimation() {
@@ -232,6 +270,6 @@ gui.addColor(params,'color3').name('BG color').onChange(update)
 document.addEventListener('mousemove', (event) => {
     event.preventDefault()
 
-    console.log(camera.position)
+    // console.log(camera.position)
 
 }, false)
