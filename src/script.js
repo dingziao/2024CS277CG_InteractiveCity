@@ -172,7 +172,9 @@ function onMouseClick(event){
         //Dog
         if(i.name == "Object_206") {
             // window.open("https://en.wikipedia.org/wiki/Dog");
-            dog.scale.x == 0.5 ?  dog.scale.set(0.05, 0.05, 0.05) : dog.scale.set(0.5, 0.5, 0.5);
+            dog.scale.x == 0.5 ?  
+            window.open("https://www.petfinder.com/search/dogs-for-adoption/us/nh/hanover/") 
+            : dog.scale.set(0.5, 0.5, 0.5);
             console.log(dog);
             break
         }
@@ -232,6 +234,8 @@ function introAnimation() {
 }
 
 introAnimation() // call intro animation on start
+
+
 
 /////////////////////////////////////////////////////////////////////////
 //// DEFINE ORBIT CONTROLS LIMITS
@@ -399,6 +403,8 @@ function rendeLoop() {
     if (helicopterModel) {
         updateHelicopterPosition(delta);
     }
+    if(sunLight.position.x == 100) sunLight.position.set(-100, 44, 14)
+    sunLight.position.set(sunLight.position.x+0.5, 44, 14)
 
     renderer.render(scene, camera) // render the scene using the camera
 
@@ -409,7 +415,7 @@ function rendeLoop() {
 rendeLoop() //start rendering
 
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js'
-const gui = new GUI()
+// const gui = new GUI()
 
 // create parameters for GUI
 var params = {color: sunLight.color.getHex(), color2: ambient.color.getHex(), color3: null
@@ -428,14 +434,14 @@ const update = function () {
 
 //////////////////////////////////////////////////
 //// GUI CONFIG
-gui.add(sunLight, 'intensity').min(0).max(10).step(0.0001).name('Dir intensity')
-gui.add(sunLight.position, 'x').min(-100).max(100).step(0.00001).name('Dir X pos')
-gui.add(sunLight.position, 'y').min(0).max(100).step(0.00001).name('Dir Y pos')
-gui.add(sunLight.position, 'z').min(-100).max(100).step(0.00001).name('Dir Z pos')
-gui.addColor(params,'color').name('Dir color').onChange(update)
-gui.addColor(params,'color2').name('Amb color').onChange(update)
-gui.add(ambient, 'intensity').min(0).max(10).step(0.001).name('Amb intensity')
-gui.addColor(params,'color3').name('BG color').onChange(update)
+// gui.add(sunLight, 'intensity').min(0).max(10).step(0.0001).name('Dir intensity')
+// gui.add(sunLight.position, 'x').min(-100).max(100).step(0.00001).name('Dir X pos')
+// gui.add(sunLight.position, 'y').min(0).max(100).step(0.00001).name('Dir Y pos')
+// gui.add(sunLight.position, 'z').min(-100).max(100).step(0.00001).name('Dir Z pos')
+// gui.addColor(params,'color').name('Dir color').onChange(update)
+// gui.addColor(params,'color2').name('Amb color').onChange(update)
+// gui.add(ambient, 'intensity').min(0).max(10).step(0.001).name('Amb intensity')
+// gui.addColor(params,'color3').name('BG color').onChange(update)
 
 //////////////////////////////////////////////////
 //// ON MOUSE MOVE TO GET CAMERA POSITION
