@@ -82,6 +82,7 @@ loader.load('models/gltf/city.glb', function (gltf) {
 
     loadMercedesBenzModel();
     loadDog();
+    loadCharacter();
 })
 
 let mercedesBenzModel; // 用于在渲染循环外部引用模型
@@ -107,8 +108,31 @@ function loadDog() {
     });
 }
 
+function loadCharacter() {
+    loader.load('models/gltf/character_policeman.glb', function (gltf) {
+        gltf.scene.position.set(6, 8, -18);
+        gltf.scene.scale.set(3, 3, 3);
+        scene.add(gltf.scene);
+    });
 
+    loader.load('models/gltf/character_girl.glb', function (gltf) {
+        gltf.scene.position.set(25, 8, 40);
+        gltf.scene.scale.set(2, 2, 2);
+        scene.add(gltf.scene);
+    });
 
+    loader.load('models/gltf/character_boy.glb', function (gltf) {
+        gltf.scene.position.set(27, 8, 40);
+        gltf.scene.scale.set(2, 2, 2);
+        scene.add(gltf.scene);
+    });
+
+    loader.load('models/gltf/character_doctor.glb', function (gltf) {
+        gltf.scene.position.set(6, 8, -18);
+        gltf.scene.scale.set(3, 3, 3);
+        scene.add(gltf.scene);
+    });
+}
 
 var raycaster = new THREE.Raycaster()
 var mouse = new THREE.Vector2()
