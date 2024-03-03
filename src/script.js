@@ -80,8 +80,13 @@ loader.load('models/gltf/city.glb', function (gltf) {
 
     // ziao: load cause stuck?
 
+<<<<<<< HEAD
     // loadMercedesBenzModel();
     loadDog();
+=======
+    loadMercedesBenzModel();
+    // loadDog();
+>>>>>>> 338be77d63ee26580383f8701f7a276567abfde3
 })
 
 let mercedesBenzModel; // 用于在渲染循环外部引用模型
@@ -89,12 +94,15 @@ let dog;
 
 function loadMercedesBenzModel() {
     loader.load('models/gltf/mersedes-benz_sl63_amg_free.glb', function (gltf) {
-        gltf.scene.position.set(10, 0, 3); // 初始化位置
-        gltf.scene.scale.set(3, 3, 3); // 初始化缩放
+        // gltf.scene.position.set(18, 7.8, 25.3); // 初始化位置
+        // gltf.scene.position.set(28.3, 7.8, -5); // 初始化位置
+        gltf.scene.position.set(-15, 7.8, 25.3); // 初始化位置
+        gltf.scene.scale.set(1.4, 1.4, 1.4); // 初始化缩放
         scene.add(gltf.scene);
         mercedesBenzModel = gltf.scene; // 保存对模型的引用
     });
 }
+<<<<<<< HEAD
 
 function loadDog() {
     loader.load('models/gltf/animated_dog_shiba_inu.glb', function (gltf) {
@@ -132,6 +140,8 @@ function onMouseClick(event){
 }
 
 window.addEventListener( 'click', onMouseClick, false );
+=======
+>>>>>>> 338be77d63ee26580383f8701f7a276567abfde3
 /////////////////////////////////////////////////////////////////////////
 //// INTRO CAMERA ANIMATION USING TWEEN
 function introAnimation() {
@@ -166,38 +176,54 @@ function setOrbitControlsLimits(){
 
 /////////////////////////////////////////////////////////////////////////
 //// RENDER LOOP FUNCTION
-let currentEdge = 0; // 当前正在行驶的边的索引（0-3）
-const squareSize = 0.1; // 正方形边长
-const squareVertices = [ // 正方形的四个顶点
-    { x: -squareSize / 2, z: -squareSize / 2 }, // 左下
-    { x: squareSize / 2, z: -squareSize / 2 }, // 右下
-    { x: squareSize / 2, z: squareSize / 2 }, // 右上
-    { x: -squareSize / 2, z: squareSize / 2 } // 左上
-];
-const driveSpeed = 0.02; // 行驶速度
+const driveSpeed = 0.1; // 行驶速度
+
+// 考虑到车辆的循环路径，我们将使用具体的坐标点来控制转向
 
 function updateVehiclePosition() {
-    // 获取当前顶点和下一个顶点
-    const currentVertex = squareVertices[currentEdge];
-    const nextVertex = squareVertices[(currentEdge + 1) % squareVertices.length];
+    let direction;
+    let newTargetRotationY;
+    let targetRotationY = mercedesBenzModel.rotation.y; // 初始化目标旋转角度为当前角度
+    // 检测车辆位置并决定行进方向
+    if (mercedesBenzModel.position.x < 28.3 && mercedesBenzModel.position.z === 25.3) {
+        // 向x正方向行驶直到达到(28.3, 25.3)
+        direction = {x: 1, z: 0 };
+    } else if (mercedesBenzModel.position.x >= 28.3 && mercedesBenzModel.position.z > -15) {
+        // 在(28.3, 25.3)左转，向-z方向行驶直到(28.3, -10)
+        direction = {x: 0, z: -1 }; 
+    } else if (mercedesBenzModel.position.z <= -15 && mercedesBenzModel.position.x > -13.5) {
+        // 在(28.3, -10)左转，向-x方向行驶直到(-20, -10)
+        direction = { x: -1, z: 0 }; 
+    } else if (mercedesBenzModel.position.x <= -13.5 && mercedesBenzModel.position.z < 25.3) {
+        // 在(-20, -10)左转，向+z方向行驶直到(-13.5, 25.3)
+        direction = { x: 0, z: 1 };
+    }
 
-    // 计算向下一个顶点行驶的方向向量
-    const direction = { x: nextVertex.x - currentVertex.x, z: nextVertex.z - currentVertex.z };
+    // 规范化方向向量
     const length = Math.sqrt(direction.x * direction.x + direction.z * direction.z);
     const normalizedDirection = { x: direction.x / length, z: direction.z / length };
 
-    // 更新车辆位置
+    // 根据方向更新车辆位置
     mercedesBenzModel.position.x += normalizedDirection.x * driveSpeed;
     mercedesBenzModel.position.z += normalizedDirection.z * driveSpeed;
 
-    // 计算是否到达下一个顶点
-    if (Math.abs(mercedesBenzModel.position.x - nextVertex.x) < 0.5 && Math.abs(mercedesBenzModel.position.z - nextVertex.z) < 0.5) {
-        currentEdge = (currentEdge + 1) % squareVertices.length; // 转向下一个边
-    }
+    // 调整车辆旋转以面向移动方向
+    newTargetRotationY = Math.atan2(-normalizedDirection.x, -normalizedDirection.z) + Math.PI;
 
-    // 更新车辆朝向，加上Math.PI来调整方向
-    mercedesBenzModel.rotation.y = Math.atan2(-normalizedDirection.x, normalizedDirection.z) + Math.PI;
+    // 修正旋转方向以选择最短路径
+    const alpha = 0.05; // 根据需要调整这个值
+    let currentRotationY = mercedesBenzModel.rotation.y;
+    let rotationDifference = newTargetRotationY - currentRotationY;
+
+    // 确保差异在 -π 到 π 范围内
+    while (rotationDifference > Math.PI) rotationDifference -= 2 * Math.PI;
+    while (rotationDifference < -Math.PI) rotationDifference += 2 * Math.PI;
+
+    // 应用平滑旋转
+    mercedesBenzModel.rotation.y += rotationDifference * alpha;
 }
+
+
 
 
 
