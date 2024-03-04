@@ -392,6 +392,7 @@ function updateHelicopterPosition(deltaTime) {
     helicopterModel.rotation.y += rotationDifference * alpha;
 }
 
+let updatePosition = 1;
 function rendeLoop() {
     const delta = clock.getDelta();
     TWEEN.update() // update animations
@@ -403,8 +404,9 @@ function rendeLoop() {
     if (helicopterModel) {
         updateHelicopterPosition(delta);
     }
-    if(sunLight.position.x == 100) sunLight.position.set(-100, 44, 14)
-    sunLight.position.set(sunLight.position.x+0.5, 44, 14)
+    if(sunLight.position.x == 100) updatePosition = -1;
+    if(sunLight.position.x == -100) updatePosition = 1;
+    sunLight.position.set(sunLight.position.x+updatePosition, 44, 14)
 
     renderer.render(scene, camera) // render the scene using the camera
 
