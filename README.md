@@ -2,6 +2,7 @@
 
 A browser-based 3D city experience built with Three.js. Users can explore the scene and interact with animated models.\
 3D models from [sketchfab.com](https://sketchfab.com/features/free-3d-models).\
+Background from [ektogamat](https://github.com/ektogamat/threejs-andy-boilerplate).\
 ⭐Live @  [Live Demo](https://dingziao.github.io/CS277_CG_InteractiveCityView/)
 
 ## ⭐Features
